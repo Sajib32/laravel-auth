@@ -80,7 +80,7 @@ return array(
 	|
 	*/
 
-	'username' => 'secretpass',
+	'username' => 'sajibnstu@gmail.com',
 
 	/*
 	|--------------------------------------------------------------------------
@@ -93,7 +93,7 @@ return array(
 	|
 	*/
 
-	'password' => 'sajibnstu32',
+	'password' => 'secretpass',
 
 	/*
 	|--------------------------------------------------------------------------
