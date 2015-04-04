@@ -76,7 +76,21 @@ Route::group(array('before' => 'guest'), function() {
 			'as' => 'account-sign-in-post',
 			'uses' => 'AccountController@postSignIn'
 		));
+
+		Route::post('/account/forgot-password', array(
+		'as' => 'account-forgot-password-post',
+		'uses' => 'AccountController@postForgotPassword'
+	));
 	});
+
+	Route::get('/account/forgot-password', array(
+		'as' => 'account-forgot-password',
+		'uses' => 'AccountController@getForgotPassword'
+	));
+	Route::get('/account/recover/{code}', array(
+		'as' => 'account-recover',
+		'uses' => 'AccountController@getRecover'
+	));
 	/*
 	| Create Sign in
 	*/

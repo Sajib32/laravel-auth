@@ -49,17 +49,6 @@ class AccountController extends \BaseController {
 	}
 
 	/**
-	 * Display a listing of the resource.
-	 * GET /account
-	 *
-	 * @return Response
-	 */
-	public function index()
-	{
-		//
-	}
-
-	/**
 	 * Show the form for creating a new resource.
 	 * GET /account/create
 	 *
@@ -181,52 +170,70 @@ class AccountController extends \BaseController {
 			   ->with('global', 'Your password could not be changed');
 	}
 
-	/**
-	 * Display the specified resource.
-	 * GET /account/{id}
-	 *
-	 * @param  int  $id
-	 * @return Response
-	 */
-	public function show($id)
+	public function getForgotPassword()
 	{
-		//
+		return View::make('account.forgot');
 	}
 
-	/**
-	 * Show the form for editing the specified resource.
-	 * GET /account/{id}/edit
-	 *
-	 * @param  int  $id
-	 * @return Response
-	 */
-	public function edit($id)
+	public function postForgotPassword()
 	{
-		//
+		$validator = Validator::make(Input::all(),
+			array(
+				'email' => 'required|email'
+			)
+		);
+
+		if($validator->fails()) {
+			return Redirect::route('account-forgot-password')
+					->withErrors($validator)
+					->withInput();
+		} else {
+			$user = User::where('email', '=', Input::get('email'));
+
+			if($user->count()) {
+				$user = $user->first();
+			// Generate a new code and password
+			$code = str_random(60);
+			$password = str_random(10);
+
+			$user->code = $code;
+			$user->password_temp = Hash::make($password);
+
+			if ($user->save()) {
+				Mail::send('emails.auth.forgot', array('link' => URL::route('account-recover', $code), 'username' => $user->username, 'password' =>$password), function($message) use ($user) {
+					$message->to($user->email, $user->username)->subject('Your new password');
+				});
+
+				return Redirect::route('home')
+					   ->with('global', 'We have sent you a new password by email');
+				}
+
+			}
+		}
+
+		return Redirect::route('account-forgot-password')
+				->with('global', 'Could not request new password');
 	}
 
-	/**
-	 * Update the specified resource in storage.
-	 * PUT /account/{id}
-	 *
-	 * @param  int  $id
-	 * @return Response
-	 */
-	public function update($id)
-	{
-		//
-	}
+	public function getRecover($code) {
+		$user = User::where('code', '=', $code)
+				->where('password_temp', '!=', '');
 
-	/**
-	 * Remove the specified resource from storage.
-	 * DELETE /account/{id}
-	 *
-	 * @param  int  $id
-	 * @return Response
-	 */
-	public function destroy($id)
-	{
-		//
+		if($user->count()) {
+			$user = $user->first();
+
+			$user->password = $user->password_temp;
+			$user->password_temp = '';
+			$user->code = '';
+
+			if($user->save()) {
+				return Redirect::route('home')
+						->with('global', 'Your account has been recovered and you can sign in with your new password.');						
+			}
+		}
+
+		return Redirect::route('home')
+				->with('global', 'Could not recover your account');
 	}
 
 }
