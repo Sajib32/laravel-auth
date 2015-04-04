@@ -16,6 +16,10 @@ Route::get('/', array(
 	'uses' => 'HomeController@home'	
 ));
 
+Route::get('/user/{username}', array(
+	'as' => 'profile-user',
+	'uses' => 'ProfileController@user'
+));
 /*
 | Authenticated group
 */
