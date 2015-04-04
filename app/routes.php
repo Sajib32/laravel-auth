@@ -17,6 +17,41 @@ Route::get('/', array(
 ));
 
 /*
+| Authenticated group
+*/
+Route::group(array('before'=>'auth'), function() { 
+	/*
+	| CSRF protection group
+	*/
+	Route::group(array('before'=>'csrf'), function() { 	
+		/*
+		| Change Password (POST)
+		*/
+		Route::post('/account/change-password', array(
+			'as' => 'account-change-password-post',
+			'uses' => 'AccountController@postChangePassword'
+ 		));
+	});
+	/*
+	| Change Password (GET)
+	*/
+	
+	Route::get('/account/change-password', array(
+		'as' => 'account-change-password',
+		'uses' => 'AccountController@getChangePassword'
+	));
+
+	/*
+	| sign out (GET)
+	*/
+
+	Route::get('/account/sign-out', array( 
+		'as' => 'account-sign-out',
+		'uses' => 'AccountController@getSignOut'
+	));
+});
+
+/*
 | Unauthenticated group
 */
 
@@ -33,9 +68,25 @@ Route::group(array('before' => 'guest'), function() {
 			'as' => 'account-store',
 			'uses' => 'AccountController@store' 
 		));
+		Route::post('/account/sign-in', array(
+			'as' => 'account-sign-in-post',
+			'uses' => 'AccountController@postSignIn'
+		));
 	});
+	/*
+	| Create Sign in
+	*/
+	Route::get('/account/sign-in', array(
+		'as' => 'account-sign-in',
+		'uses' => 'AccountController@getSignIn'
+	));
 	Route::get('/account/create', array(
 		'as' => 'account-create',
 		'uses' => 'AccountController@create'
+	));
+
+	Route::get('/account/activate/{code}', array(
+		'as' => 'account-activate',
+		'uses' => 'AccountController@getActivate'
 	));
 });
